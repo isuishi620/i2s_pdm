@@ -54,23 +54,27 @@ static i2s_chan_handle_t i2s_example_init_pdm_rx(void)
 // PDM受信タスク（データ読み取り＆表示）
 void i2s_example_pdm_rx_task(void *args)
 {
-    int16_t *r_buf = (int16_t *)calloc(1, EXAMPLE_BUFF_SIZE);  // 受信バッファ
-    assert(r_buf);
+    int16_t *r_buf = (int16_t *)calloc(1, EXAMPLE_BUFF_SIZE);
+    assert(r_buf != NULL);
 
     i2s_chan_handle_t rx_chan = i2s_example_init_pdm_rx();
     size_t r_bytes = 0;
 
     while (1) {
-        // データ受信
+        
         if (i2s_channel_read(rx_chan, r_buf, EXAMPLE_BUFF_SIZE, &r_bytes, 1000) == ESP_OK) {
-            printf("Read Task: %d バイト受信\n-----------------------------------\n", r_bytes);
-            printf("[0] %d [1] %d [2] %d [3] %d\n[4] %d [5] %d [6] %d [7] %d\n\n",
-                   r_buf[0], r_buf[1], r_buf[2], r_buf[3], r_buf[4], r_buf[5], r_buf[6], r_buf[7]);
-        } else {
-            printf("Read Task: 読み取り失敗\n");
+            int sample_count = r_bytes / sizeof(int16_t);
+            int32_t sum = 0;
+            for (int i = 0; i < sample_count; i++) {
+                sum += r_buf[i];
+            }
+            int16_t dc = sum / sample_count;
+            // データ出力
+            for (int i = 0; i < sample_count; i++) {
+                printf("%d\n", r_buf[i] - dc);
+            }
         }
-
-        vTaskDelay(pdMS_TO_TICKS(200));  // 読み取り間隔（遅延が長いとDMAオーバーフローの原因）
+        vTaskDelay(pdMS_TO_TICKS(50));  // 間隔調整
     }
 
     free(r_buf);
