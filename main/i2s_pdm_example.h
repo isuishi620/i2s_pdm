@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-#define EXAMPLE_BUFF_SIZE   2048
+#define EXAMPLE_BUFF_SIZE   1024
 
 /**
  * @brief I2S PDM TX example task
