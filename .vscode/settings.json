@@ -12,6 +12,7 @@
   },
   "idf.flashType": "UART",
   "files.associations": {
-    "i2s_example_pins.h": "c"
+    "i2s_example_pins.h": "c",
+    "stdint.h": "c"
   }
 }

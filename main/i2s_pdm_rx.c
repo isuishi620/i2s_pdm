@@ -20,6 +20,7 @@
 #define EXAMPLE_PDM_RX_CLK_IO   42  // クロック入力
 #define EXAMPLE_PDM_RX_DIN_IO   41  // データ入力
 #define EXAMPLE_PDM_RX_FREQ_HZ  16000  // サンプリング周波数（Hz）
+#define EXAMPLE_BUFF_SIZE      1024  // バッファサイズ（バイト単位）
 
 // PDM受信チャンネルの初期化
 static i2s_chan_handle_t i2s_example_init_pdm_rx(void)
@@ -64,15 +65,7 @@ void i2s_example_pdm_rx_task(void *args)
         
         if (i2s_channel_read(rx_chan, r_buf, EXAMPLE_BUFF_SIZE, &r_bytes, 1000) == ESP_OK) {
             int sample_count = r_bytes / sizeof(int16_t);
-            int32_t sum = 0;
-            for (int i = 0; i < sample_count; i++) {
-                sum += r_buf[i];
-            }
-            int16_t dc = sum / sample_count;
-            // データ出力
-            for (int i = 0; i < sample_count; i++) {
-                printf("%d\n", r_buf[i] - dc);
-            }
+            fwrite(r_buf, sizeof(int16_t), sample_count, stdout);  // バイナリ出力
         }
         vTaskDelay(pdMS_TO_TICKS(50));  // 間隔調整
     }
